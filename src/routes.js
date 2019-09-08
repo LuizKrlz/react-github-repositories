@@ -11,7 +11,7 @@ export default function Routes() {
       <Switch>
         {/* / é necessario pq o react-router-dom nao procura por igualdade, ele procura a primeira referencia */}
         <Route exact path="/" component={Main} />
-        <Route exact path="/repository" component={Repository} />
+        <Route exact path="/repository/:repository" component={Repository} />
       </Switch>
     </BrowserRouter>
   );
