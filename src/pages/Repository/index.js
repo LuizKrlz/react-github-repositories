@@ -13,17 +13,29 @@ class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    filter: 'all',
   };
 
   async componentDidMount() {
+    this.getIssues();
+  }
+
+  async componentDidUpdate(_, prevState) {
+    if (prevState.filter !== this.state.filter) {
+      this.getIssues();
+    }
+  }
+
+  async getIssues() {
     const { match } = this.props;
+    const { filter } = this.state;
 
     const repoName = decodeURIComponent(match.params.repository);
 
     // consigo chamar varias consultas api quando uma nao depende da outra
     const [repository, issues] = await Promise.all([
       api.get(`/repos/${repoName}`),
-      api.get(`/repos/${repoName}/issues`, {
+      api.get(`/repos/${repoName}/issues?state=${filter}`, {
         // parametros passados na url
         params: {
           state: 'open',
@@ -37,8 +49,6 @@ class Repository extends Component {
       issues: issues.data,
       loading: false,
     });
-
-    console.log(repository, issues);
   }
 
   render() {
@@ -56,9 +66,24 @@ class Repository extends Component {
           <p>{repository.description}</p>
         </Owner>
         <Filters>
-          <button type="button">Todos</button>
-          <button type="button">Aberto</button>
-          <button type="button">Fechado</button>
+          <button
+            type="button"
+            onClick={() => this.setState({ filter: 'all' })}
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            onClick={() => this.setState({ filter: 'open' })}
+          >
+            Aberto
+          </button>
+          <button
+            type="button"
+            onClick={() => this.setState({ filter: 'closed' })}
+          >
+            Fechado
+          </button>
         </Filters>
         <IssueList>
           {issues.map(issue => (

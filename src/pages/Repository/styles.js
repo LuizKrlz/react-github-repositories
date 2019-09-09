@@ -114,6 +114,19 @@ export const Filters = styled.div`
     background: #5975c1;
     border: none;
     font-weight: bold;
-    margin: 2px;
+
+    &:first-child {
+      border-radius: 3px 0px 0px 3px;
+      border-right: 1px solid #eee;
+    }
+
+    &:last-child {
+      border-radius: 0px 3px 3px 0px;
+      border-left: 1px solid #eee;
+    }
+
+    &:hover {
+      background: #7159c1;
+    }
   }
 `;
