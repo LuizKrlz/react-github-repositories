@@ -6,7 +6,7 @@ import api from '../../services/api';
 
 import Container from '../../components/Container';
 
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, Filters } from './styles';
 
 class Repository extends Component {
   state = {
@@ -55,6 +55,11 @@ class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
+        <Filters>
+          <button type="button">Todos</button>
+          <button type="button">Aberto</button>
+          <button type="button">Fechado</button>
+        </Filters>
         <IssueList>
           {issues.map(issue => (
             <li key={String(issue.id)}>

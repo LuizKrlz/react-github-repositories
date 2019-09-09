@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { FaGithubAlt, FaPlus, FaSpinner } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
+import { ToastContainer, toast } from 'react-toastify';
 
 import api from '../../services/api';
 
@@ -13,6 +14,7 @@ export default class Main extends Component {
     newRepo: '',
     repositories: [],
     loading: false,
+    error: false,
   };
 
   // carregar os dados do localstorage
@@ -39,31 +41,59 @@ export default class Main extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
-    const { newRepo, repositories } = this.state;
-    this.setState({ loading: true });
-    const response = await api.get(`/repos/${newRepo}`);
+    try {
+      const { newRepo, repositories } = this.state;
 
-    const data = {
-      name: response.data.full_name,
-    };
+      const exists = repositories.find(item => item.name === newRepo);
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-      loading: false,
-    });
+      if (exists) {
+        throw new Error('Repositorio duplicado');
+      }
+
+      this.setState({ loading: true });
+      const response = await api.get(`/repos/${newRepo}`);
+
+      const data = {
+        name: response.data.full_name,
+      };
+
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+        loading: false,
+      });
+      toast.success('Repositorio adicionado com sucesso');
+    } catch (err) {
+      let { message } = err;
+
+      if (err.response && err.response.status === 404) {
+        message = 'Repositório não encontrado';
+      }
+
+      toast.error(message, {
+        onClose: () => {
+          this.setState({ error: false });
+        },
+      });
+
+      this.setState({
+        loading: false,
+        error: true,
+      });
+    }
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
 
     return (
       <Container>
+        <ToastContainer />
         <h1>
           <FaGithubAlt />
           Repositórios
         </h1>
-        <Form onSubmit={this.handleSubmit}>
+        <Form onSubmit={this.handleSubmit} error={error}>
           <input
             type="text"
             placeholder="Adicionar Repositorio"
